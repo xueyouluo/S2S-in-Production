@@ -7,6 +7,17 @@
 - [S2S-in-Production](#s2s-in-production)
   - [目录](#目录)
   - [引言](#引言)
+  - [框架选择](#框架选择)
+    - [Tensorflow流](#tensorflow流)
+      - [[OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/)](#opennmt-tfhttpsgithubcomopennmtopennmt-tf)
+      - [NMT](#nmt)
+      - [Tensor2Tensor](#tensor2tensor)
+      - [OpenSeq2Seq](#openseq2seq)
+      - [rax](#rax)
+      - [Texar](#texar)
+    - [PyTorch流](#pytorch流)
+    - [MXNet流](#mxnet流)
+    - [统计流](#统计流)
   - [OOV/UNK问题](#oovunk问题)
     - [词表改进](#词表改进)
       - [基于字的词表](#基于字的词表)
@@ -15,8 +26,12 @@
     - [模型改进](#模型改进)
       - [强制不生成UNK](#强制不生成unk)
       - [Copy机制](#copy机制)
-  - [重复问题【占坑】](#重复问题占坑)
-  - [多样性问题【占坑】](#多样性问题占坑)
+  - [重复问题](#重复问题)
+  - [多样性问题](#多样性问题)
+  - [生成质量的评估](#生成质量的评估)
+  - [生成的可控性](#生成的可控性)
+  - [预训练的有效性](#预训练的有效性)
+  - [多样性的输入](#多样性的输入)
 
 <!-- /TOC -->
 
@@ -25,10 +40,57 @@
 分享一些S2S在实际生成的应用中遇到的问题和解决方法。**欢迎大家发PR补充自己的意见。**
 
 > - 这里主要是关于生成相关的任务，所以其他的任务可能不适用。
->
-> - 文档会不断完善，但仍然会有很多分析和数据可能会缺失【各种坑】（懒-_-），大家就取其精华去其糟粕吧。
+>- 文档会不断完善，但仍然会有很多分析和数据可能会缺失【各种坑】（懒-_-），大家就取其精华去其糟粕吧。
+> - 这些是我们团队在使用S2S时的一些经验和总结，总会存在一些错误或者纰漏，所以如果有更好的经验欢迎分享。
 
-默认大家已经比较熟悉S2S架构，并且跑过一些实验了，所以不做过多的介绍，直接进入正题吧。
+默认大家已经比较熟悉S2S架构，并且跑过一些实验了，所以不做过多的介绍，直接进入正题吧。当然，如果本文受欢迎的话还是可以补充各种基础知识的😆
+
+## 框架选择
+
+对于刚开始学习S2S的同学，我是建议自己去实现一下基本的S2S的模型的，gay佬交友网站上已经有一堆人用pytorch和tensorflow实现了各种S2S的模型，有兴趣的可以去看看。当然也可以看我两三年前参考各种别人实现写的[seq2seq](https://github.com/xueyouluo/my_seq2seq)（不过还是上古时代的LSTM的那套😂）。
+
+对于专业人士来说，手撸一套s2s框架肯定毫无压力，但是对于我这种比较懒的人来说，直接用别人写的改改还是香😁。所以这里介绍几个S2S框架（当然，很多我也只是知道个名字😂）推荐给大家，大家各取所需。欢迎━(*｀∀´*)ノ亻!补充。
+
+当然这样再稍微探讨一下框架的优劣，我司有同学喜欢自己维护一套代码（程序员都喜欢从头来一遍），这样的好处是对这套代码非常熟悉，用起来改起来都非常方便。但是坏处就是其他同学想用你的代码就有学习成本，而且你加的新feature也没法跟别的框架的feature合起来用。框架的好处是大家用的多了就比较熟悉了，都可以在上面加新feature，方便共享成果，但坏处就是框架一般就不太灵活，想加新功能可能得改到好几处地方（当然，牛逼的框架做的好还是只要改一点点地方）。我是建议一个团队或者一个组的同学在做S2S任务的时候都是共同维护一套框架的，而且每位同学都要非常熟悉源代码，这样工作效率会更高。
+
+### Tensorflow流
+
+#### [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/)
+
+#### NMT
+
+https://github.com/tensorflow/nmt
+
+https://github.com/google/seq2seq
+
+#### Tensor2Tensor
+
+https://github.com/tensorflow/tensor2tensor
+
+#### OpenSeq2Seq
+
+https://github.com/NVIDIA/OpenSeq2Seq
+
+#### rax
+
+#### Texar
+
+https://github.com/asyml/texar
+
+### PyTorch流
+
+https://github.com/OpenNMT/OpenNMT-py
+
+https://github.com/pytorch/fairseq
+
+### MXNet流
+
+https://github.com/awslabs/sockeye
+
+### 统计流
+
+http://www.statmt.org/moses/
+
 
 ## OOV/UNK问题
 
@@ -94,7 +156,18 @@ NLP中的神经网络模型都是固定词表大小的，遇到OOV的词我们�
 
 如果大家看过PG的源代码或者自己尝试实现过的话，可以发现其实你还要额外维护一个OOV的词表用来做copy用，这个实现起来还挺不方便的，可以采用一个简化的版本（是的，又来偷懒了-_-）。前面提到过sub-word-units，因此我们可以保证输入的词不会被转换成UNK的（当然有例外，比如训练spm的时候没见过的字），那么我们就不需要维护那个额外的OOV词表了，直接copy输入的词就好了，这样encoder这边就不需要改动了，只需要改动decoder这边的生成词表概率这部分就好了。
 
-## 重复问题【占坑】
+> 这里补充一点，我们组兴华同学提到用transformer实现pg的时候，copy attention部分最好使用multi-head attention的结果（你可以取其中一个头的结果就好），自己另外算一个attention的话模型比较难收敛。
+>
+> 再补充一点😂，如果你自己预训练了T5模型的话，其实可以不用太担心OOV的问题，因为T5模型本身就比较倾向于copy的，所以spm + T5 + 强制不生成UNK基本也就够用了。
 
-## 多样性问题【占坑】
+## 重复问题
 
+## 多样性问题
+
+## 生成质量的评估
+
+## 生成的可控性
+
+## 预训练的有效性
+
+## 多样性的输入
