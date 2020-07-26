@@ -13,7 +13,7 @@
       - [NMT](#nmt)
       - [Tensor2Tensor](#tensor2tensor)
       - [OpenSeq2Seq](#openseq2seq)
-      - [rax](#rax)
+      - [trax](#trax)
       - [Texar](#texar)
     - [PyTorch流](#pytorch流)
     - [MXNet流](#mxnet流)
@@ -57,41 +57,112 @@
 
 #### OpenNMT-tf
 
-https://github.com/OpenNMT/OpenNMT-tf/
+框架地址：https://github.com/OpenNMT/OpenNMT-tf/
+
+Star: 1.1K
+
+虽然star不多，但是个人觉得这个框架写的是挺不错的，代码结构比较清晰合理，模块化做的也挺好，基于它上面加一些feature的话也不难。我们组内部也是基于这个框架的进行二次开发的，同时它也有个CTranslate2的项目，能够帮助提高inference时候的效率，可谓是训练、服务一条龙了。
+
+它目前支持s2s、分类、序列标注、语言模型等任务，模型结构也方便你自由组合，比如encoder使用transformer，decoder使用rnn这样，或者层次的encoder结构等等。当然还有很多其他的feature，比如梯度累积，分布式训练，混合精度等，有兴趣的同学可以去github上看看。它早期是基于tf-1.X的版本开发的，现在已经升级到了tf-2.X，习惯tf-1.X的同学得切换到老版本的分支。
+
+推荐指数： :star::star::star::star::star:
+
+> 推荐指数是本人主观倾向的，不具备客观性，大家参考一下就好😂
 
 #### NMT
 
-https://github.com/tensorflow/nmt
+框架地址：https://github.com/google/seq2seq
 
-https://github.com/google/seq2seq
+star: 5.3K
+
+这里有两个框架，应该说是有一定的继承关系吧，一开始的时候tf上还没有比较好的seq2seq的框架，Denny在tf应该是tf比较早期的版本开发了这套seq2seq的代码，实现了一个比较完整的S2S的流程，比如训练，比如attention，比如beam search。那个时候主要就是看他的代码来学习S2S。当然他用了很多自己的实现，后来应该集成到了tf.contrib.seq2seq模块中，总体来说作为学习可以看看，现在不推荐使用了，我记得当时为了用他这个代码做serving耗费了很大的精力。
+
+推荐指数：:star::star:
+
+框架地址：https://github.com/tensorflow/nmt
+
+star: 5.5K
+
+nmt这个是后来出来的，我觉得非常适合初学者去学习s2s，它的文档写的非常详尽，是一个hands-on的教程。有一段时间我们用的s2s框架就是它，但是由于是基于LSTM的，所以训练大模型的时候那个时间，一言难尽，我甚至跑过一个月的模型。后来transformer刚出来的时候，斌哥建议我们看看，但是当时没有太在意，现在想想那时候实在是太慢热了，使用transformer可以节省多少时间啊。
+
+推荐指数：:star::star::star::star:
 
 #### Tensor2Tensor
 
-https://github.com/tensorflow/tensor2tensor
+框架地址：https://github.com/tensorflow/tensor2tensor
+
+star：10.2K
+
+这个框架当时有一统江湖的意思，文本图像的任务都涵盖了。当时挺兴奋的就去用了，但是发现代码结构对我来说有点复杂（coding水平低吧我），处理通用任务还是不错的，但是不知道改起来要从哪里入手，所以后面就放弃了😂。现在貌似迁移到trax这个库里面去了，后面再介绍。
+
+推荐指数：:star::star::star:
 
 #### OpenSeq2Seq
 
-https://github.com/NVIDIA/OpenSeq2Seq
+框架地址：https://github.com/NVIDIA/OpenSeq2Seq
 
-#### rax
+star：1.2K
+
+NVIDIA出的s2s框架，所以什么混合精度、加速这类的肯定没毛病，也是个大杂烩，啥都有。当时看混合精度训练的时候看过这里，现在tf官方就支持了混合精度了，不需要再搞个nvidia的docker了，所以也就没关注这个框架了。
+
+推荐指数：研究不多，没法打:grinning:
+
+#### trax
+
+框架地址：https://github.com/google/trax
+
+Star：4.6K
+
+这个框架是在看Reformer这篇论文的时候发现的，它自己说是`Trax code is structured in a way that allows you to understand deep learning from scratc.`师傅领进门，剩下就看每位同学自己的修为了:smile:。同时它自己声称google brain team就经常用这个框架，它里面的attention的形式（当然是指self attention）倒是很多，方便大家自由组合各种形式的attention。
+
+它使用了jax，貌似又是个新玩意，据它自己说是可以直接对numpy和python的function直接求导，应该是让你更直接使用python来写模型了，连tf都不需要了吗:confused:？现在的话感觉文档不是很齐全，很有tf的风格😂
+
+推荐指数：研究不多，全凭兴趣吧，指不定未来也是个趋势
 
 #### Texar
 
-https://github.com/asyml/texar
+框架地址：https://github.com/asyml/texar
+
+Star: 2K
+
+没啥研究，不好评价。
 
 ### PyTorch流
 
-https://github.com/OpenNMT/OpenNMT-py
+剩下的我就简单介绍了，因为我是tf的用户，其他的基本没怎么用过。
 
-https://github.com/pytorch/fairseq
+框架地址
+
+- https://github.com/OpenNMT/OpenNMT-py
+  - Star: 4.3K
+
+- https://github.com/pytorch/fairseq
+  - Star: 8.5K
+
+OpenNMT-py跟OpenNMT-tf都是来自OpenNMT的，但是它实现一些比较有用的feature，比如copy机制、coverage机制等，不过也可以在tf上实现，稍微麻烦一些。
+
+fairseq是facebook搞的，原来在看CNN做S2S的论文的时候发现的，研究不多，因为transformer出来之后就已经很香了😂
+
+从star数量来说可以看到，tf的很多是用tensor2tensor这套框架，pytorch应该是fairseq，看来我们自己用的还是比较非主流。
 
 ### MXNet流
 
-https://github.com/awslabs/sockeye
+框架地址：https://github.com/awslabs/sockeye
+
+Star：943
+
+这个star有点可怜，现在MXNet也不知道到底有多少人用了，前段时间听说MXNet就流失了很多人，估计也就亚马逊在用了吧。
 
 ### 统计流
 
-http://www.statmt.org/moses/
+框架地址：
+
+- http://www.statmt.org/moses/
+- https://github.com/moses-smt/mosesdecoder
+
+Star：1.2K
+
+传统的统计机器翻译的经典框架。其实现在很多S2S的改进也是借鉴了SMT的思想，经典的还是经典，很多idea是通用的。安装使用有点麻烦的，不过学校里面学机器翻译肯定得学这个😆，我用它来做过平行语料的phrase table的提取，但是感觉噪声太多，后来还是放弃了，直接end2end香。facebook一篇无监督翻译的论文用到这个， 效果还不错，但是后来NLP的pretrain火起来后，直接就被超过了，这个参考[XLM](https://github.com/facebookresearch/XLM)。
 
 
 ## OOV/UNK问题
@@ -173,3 +244,7 @@ NLP中的神经网络模型都是固定词表大小的，遇到OOV的词我们�
 ## 预训练的有效性
 
 ## 多样性的输入
+
+## 事实型错误问题
+
+## 相关的其他问题
