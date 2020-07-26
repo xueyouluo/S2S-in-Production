@@ -9,7 +9,7 @@
   - [引言](#引言)
   - [框架选择](#框架选择)
     - [Tensorflow流](#tensorflow流)
-      - [[OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/)](#opennmt-tfhttpsgithubcomopennmtopennmt-tf)
+      - [OpenNMT-tf](#opennmt-tf)
       - [NMT](#nmt)
       - [Tensor2Tensor](#tensor2tensor)
       - [OpenSeq2Seq](#openseq2seq)
@@ -40,7 +40,7 @@
 分享一些S2S在实际生成的应用中遇到的问题和解决方法。**欢迎大家发PR补充自己的意见。**
 
 > - 这里主要是关于生成相关的任务，所以其他的任务可能不适用。
->- 文档会不断完善，但仍然会有很多分析和数据可能会缺失【各种坑】（懒-_-），大家就取其精华去其糟粕吧。
+> - 文档会不断完善，但仍然会有很多分析和数据可能会缺失【各种坑】（懒-_-），大家就取其精华去其糟粕吧。
 > - 这些是我们团队在使用S2S时的一些经验和总结，总会存在一些错误或者纰漏，所以如果有更好的经验欢迎分享。
 
 默认大家已经比较熟悉S2S架构，并且跑过一些实验了，所以不做过多的介绍，直接进入正题吧。当然，如果本文受欢迎的话还是可以补充各种基础知识的😆
@@ -55,7 +55,9 @@
 
 ### Tensorflow流
 
-#### [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/)
+#### OpenNMT-tf
+
+https://github.com/OpenNMT/OpenNMT-tf/
 
 #### NMT
 
