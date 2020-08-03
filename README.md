@@ -1,5 +1,9 @@
 # S2S-in-Production
 
+**欢迎大家Star和PR！毕竟本人个人能力精力有限，希望大家能够补充更多内容**🙂
+
+> 目前项目还在不断完善中，立个flag吧，争取8月底能够完成初版。
+
 ## 目录
 
 <!-- TOC -->
@@ -32,14 +36,22 @@
       - [Vocab Decay](#vocab-decay)
       - [Coverage Penalty](#coverage-penalty)
     - [模型改进](#模型改进-1)
+      - [Coverage Mechanism](#coverage-mechanism)
+      - [Intra Decode Attention](#intra-decode-attention)
+      - [Semantic Cohesion](#semantic-cohesion)
   - [多样性问题](#多样性问题)
   - [生成质量的评估](#生成质量的评估)
   - [生成的可控性](#生成的可控性)
   - [预训练的有效性](#预训练的有效性)
   - [多样性的输入](#多样性的输入)
   - [事实型错误问题](#事实型错误问题)
-  - [模型蒸馏](#模型蒸馏)
+  - [模型加速](#模型加速)
+    - [模型压缩](#模型压缩)
+    - [模型蒸馏](#模型蒸馏)
   - [相关的其他问题](#相关的其他问题)
+    - [强化学习+S2S？](#强化学习s2s)
+    - [各种生成方法的简介](#各种生成方法的简介)
+    - [一些还不错的资源](#一些还不错的资源)
 
 <!-- /TOC -->
 
@@ -67,7 +79,7 @@
 
 框架地址：https://github.com/OpenNMT/OpenNMT-tf/
 
-Star: 1.1K
+**Star: 1.1K**
 
 虽然star不多，但是个人觉得这个框架写的是挺不错的，代码结构比较清晰合理，模块化做的也挺好，基于它上面加一些feature的话也不难。我们组内部也是基于这个框架的进行二次开发的，同时它也有个CTranslate2的项目，能够帮助提高inference时候的效率，可谓是训练、服务一条龙了。
 
@@ -81,7 +93,7 @@ Star: 1.1K
 
 框架地址：https://github.com/google/seq2seq
 
-star: 5.3K
+**Star: 5.3K**
 
 这里有两个框架，应该说是有一定的继承关系吧，一开始的时候tf上还没有比较好的seq2seq的框架，Denny在tf应该是tf比较早期的版本开发了这套seq2seq的代码，实现了一个比较完整的S2S的流程，比如训练，比如attention，比如beam search。那个时候主要就是看他的代码来学习S2S。当然他用了很多自己的实现，后来应该集成到了tf.contrib.seq2seq模块中，总体来说作为学习可以看看，现在不推荐使用了，我记得当时为了用他这个代码做serving耗费了很大的精力。
 
@@ -89,7 +101,7 @@ star: 5.3K
 
 框架地址：https://github.com/tensorflow/nmt
 
-star: 5.5K
+**Star: 5.5K**
 
 nmt这个是后来出来的，我觉得非常适合初学者去学习s2s，它的文档写的非常详尽，是一个hands-on的教程。有一段时间我们用的s2s框架就是它，但是由于是基于LSTM的，所以训练大模型的时候那个时间，一言难尽，我甚至跑过一个月的模型。后来transformer刚出来的时候，斌哥建议我们看看，但是当时没有太在意，现在想想那时候实在是太慢热了，使用transformer可以节省多少时间啊。
 
@@ -99,7 +111,7 @@ nmt这个是后来出来的，我觉得非常适合初学者去学习s2s，它�
 
 框架地址：https://github.com/tensorflow/tensor2tensor
 
-star：10.2K
+**Star：10.2K**
 
 这个框架当时有一统江湖的意思，文本图像的任务都涵盖了。当时挺兴奋的就去用了，但是发现代码结构对我来说有点复杂（coding水平低吧我），处理通用任务还是不错的，但是不知道改起来要从哪里入手，所以后面就放弃了😂。现在貌似迁移到trax这个库里面去了，后面再介绍。
 
@@ -109,7 +121,7 @@ star：10.2K
 
 框架地址：https://github.com/NVIDIA/OpenSeq2Seq
 
-star：1.2K
+**Star：1.2K**
 
 NVIDIA出的s2s框架，所以什么混合精度、加速这类的肯定没毛病，也是个大杂烩，啥都有。当时看混合精度训练的时候看过这里，现在tf官方就支持了混合精度了，不需要再搞个nvidia的docker了，所以也就没关注这个框架了。
 
@@ -119,7 +131,7 @@ NVIDIA出的s2s框架，所以什么混合精度、加速这类的肯定没毛�
 
 框架地址：https://github.com/google/trax
 
-Star：4.6K
+**Star：4.6K**
 
 这个框架是在看Reformer这篇论文的时候发现的，它自己说是`Trax code is structured in a way that allows you to understand deep learning from scratc.`师傅领进门，剩下就看每位同学自己的修为了:smile:。同时它自己声称google brain team就经常用这个框架，它里面的attention的形式（当然是指self attention）倒是很多，方便大家自由组合各种形式的attention。
 
@@ -131,7 +143,7 @@ Star：4.6K
 
 框架地址：https://github.com/asyml/texar
 
-Star: 2K
+**Star: 2K**
 
 没啥研究，不好评价。
 
@@ -142,22 +154,22 @@ Star: 2K
 框架地址
 
 - https://github.com/OpenNMT/OpenNMT-py
-  - Star: 4.3K
+  - **Star: 4.3K**
 
 - https://github.com/pytorch/fairseq
-  - Star: 8.5K
+  - **Star: 8.5K**
 
 OpenNMT-py跟OpenNMT-tf都是来自OpenNMT的，但是它实现一些比较有用的feature，比如copy机制、coverage机制等，不过也可以在tf上实现，稍微麻烦一些。
 
 fairseq是facebook搞的，原来在看CNN做S2S的论文的时候发现的，研究不多，因为transformer出来之后就已经很香了😂
 
-从star数量来说可以看到，tf的很多是用tensor2tensor这套框架，pytorch应该是fairseq，看来我们自己用的还是比较非主流。
+> 从star数量来说可以看到，tf的很多是用tensor2tensor这套框架，pytorch应该是fairseq，看来我们自己用的还是比较非主流。
 
 ### MXNet流
 
 框架地址：https://github.com/awslabs/sockeye
 
-Star：943
+**Star：943**
 
 这个star有点可怜，现在MXNet也不知道到底有多少人用了，前段时间听说MXNet就流失了很多人，估计也就亚马逊在用了吧。
 
@@ -168,7 +180,7 @@ Star：943
 - http://www.statmt.org/moses/
 - https://github.com/moses-smt/mosesdecoder
 
-Star：1.2K
+**Star：1.2K**
 
 传统的统计机器翻译的经典框架。其实现在很多S2S的改进也是借鉴了SMT的思想，经典的还是经典，很多idea是通用的。安装使用有点麻烦的，不过学校里面学机器翻译肯定得学这个😆，我用它来做过平行语料的phrase table的提取，但是感觉噪声太多，后来还是放弃了，直接end2end香。facebook一篇无监督翻译的论文用到这个， 效果还不错，但是后来NLP的pretrain火起来后，直接就被超过了，这个参考[XLM](https://github.com/facebookresearch/XLM)。
 
@@ -302,7 +314,31 @@ Coverage是指主要是在翻译的场景下，会有漏翻和过翻的情况，
 
 ### 模型改进
 
+前面说的内容是针对模型已经训练好了之后的重复问题优化，如果我们能够在模型训练的时候就考虑到这个问题，那么我们也就不需要再进行后处理了（当然，加入后处理可以进一步避免重复问题）。由于这块我没有做过太多的实验，所以以介绍一些论文思路为主，当然这块也经常作为论文一部分创新点作为一个小章节（毕竟很难单独拿来写一篇论文吧😂）。有兴趣的同学可以补充一下。
 
+#### Coverage Mechanism
+
+我最早看到的（当然不是指这个问题最早研究的）应该是Abigail的[PG](https://arxiv.org/pdf/1704.04368.pdf)的论文里面介绍的coverage mechanism，但是大家其实都更关注了她copy这部分的内容，这块在实验中显示确实减低了重复度。主要的思想是维护了一个coverage vector，记录了到当前时间步为止的attention的总和，可以认为是attention机制对source tokens的coverage程度。这个vector作为attention机制的额外输入信息，使其能够在计算attention的时候考虑到原来已经attention过的信息。并且额外加入了一个coverage loss来惩罚重复attention到相同位置，这个loss的计算跟我们前面提到的coverage penalty有一些不同，因为在摘要场景中不需要要求coverage的分布是均匀的，具体的区别大家可以去看看论文。
+
+下图展示了加入coverage机制后对重复的减缓作用，看着还是不错的。
+
+<img src="img/coverage_loss.png" alt="coverage_loss" style="zoom:50%;" />
+
+#### Intra Decode Attention
+
+其实这个现在拿来说有点晚了，毕竟transformer出来了，但是为了混点内容就顺便介绍一下吧😂。
+
+> 论文是《[A DEEP REINFORCED MODEL FOR ABSTRACTIVE SUMMARIZATION](https://arxiv.org/pdf/1705.04304.pdf)》，使用了RL的方法来做摘要，在指标上是比PG更好一些。
+
+在原来的基于LSTM那套的S2S模型中，我们知道attention只发生在decoder和encoder之间，而deocder内部是没有attention的，因此作者觉得我们在生成当前token的时候应该看看我们原来生成过哪些内容，这样避免生成重复的内容。因此作者提出了intra decode attention这个机制，其实就跟现在的transformer这边decoder的self-attention一样啦，所以大家用transformer就好了。
+
+> 但是其实即使是transformer还是会有重复的问题，因此仅仅self-attention还是不够的，可以参考PG的思路在loss里面加入点重复的loss来让self-attention能够知道应该关注重复的问题，这个当然也交给大家自己去填坑啦😄，有效果记得回来跟我说一下哦
+
+#### Semantic Cohesion
+
+这是在论文《[Deep Communicating Agents for Abstractive Summarization](https://arxiv.org/pdf/1803.10357.pdf)》提出来的，这篇论文在摘要任务上又比前一篇论文指标又有提升，但是感觉有点复杂（BTW，微软发的论文好像都把模型搞得挺复杂的，或者就是把别人的点子做的更一般化）。这个方法也是在论文里面非常小的一部分内容，它主要是在decode的时候记录了句子分隔符的位置，然后使用每个短句最后的hidden state来计算句子间的相似度，在最后的loss中加入这个相似度从而让模型不生成重复或者说太相似的句子。貌似文章没有提这个方法在重复度方面的提升，只说了它在最终rouge值上的帮助。
+
+> 因为这个是比较早的时候关注的问题了，所以最近是否有更新也没有太注意。总的来说大家还是在loss上做文章的，不过因为这些都比较复杂（需要改模型重新训练模型），我们发现后处理已经比较好的解决我们的问题了，所以也就没有做过什么实验了。
 
 ## 多样性问题
 
@@ -320,6 +356,23 @@ Coverage是指主要是在翻译的场景下，会有漏翻和过翻的情况，
 
 ## 事实型错误问题
 
-## 模型蒸馏
+## 模型加速
+
+这里的模型加速主要不是介绍训练时候的加速，是指在部署到服务端的加速（如果对训练加速有兴趣的同学可以移步我这篇博客《[搞定大模型训练](https://xueyouluo.github.io/how-to-train-big-models/)》，其实主要就是混合精度、分布式训练这些）。
+
+### 模型压缩
+
+### 模型蒸馏
 
 ## 相关的其他问题
+
+### 强化学习+S2S？
+
+### 各种生成方法的简介
+
+### 一些还不错的资源
+
+这里补充一些S2S有关的资源吧，想到了或者看到了我就再加进来，可能都记录在比较分散的地方了，刚好放这里做个总结和归档吧。
+
+- [NLP-progress](https://github.com/sebastianruder/NLP-progress)
+  - 一个关注NLP进展的github项目，里面有NLP各个领域的SOTA模型，当然也包括了机器翻译和摘要，大家可以看看最新的进展是啥。说起来这位哥挺有意思的，我当时在看NLP的预训练方法，openai应该是有门课介绍了语言模型预训练再进行finetune的，然后他是主动联系了这门课的老师说可以把这个点子发个论文，于是就有了ULMFiT这篇，我当时还尝试自己实现了一下，虽然这篇论文的方法后来马上被GPT和BERT给淹没了，但是还是后来的论文都或多或少都会提到这篇论文。后面逛到这个github项目，发现这个作者就是那位小哥，哈哈。看他目前在deep mind混的风生水起啊，论文发的挺多。
